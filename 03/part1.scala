@@ -3,13 +3,17 @@ import scala.io.Source
 val txt = Source.fromFile("input.txt").getLines
 val pattern = "#\\d+ @ (\\d+),(\\d+): (\\d+)+x(\\d+)".r
 
+case class Patch(offX: Int, offY: Int, width: Int, height: Int)
+
 val res = txt
-    .map(s => s match {
-      case pattern(offX, offY, w, h) => (offX.toInt, offY.toInt, w.toInt, h.toInt)
-    })
-    .flatMap( e => (0 until e._3).flatMap(x => (0 until e._4).map( y => (x + e._1, y + e._2) )).toList).toList
-    .groupBy(identity).mapValues(_.size)
-    .filter((t) => t._2 >= 2)
-    .size
+  .map {
+    case pattern(offX, offY, w, h) => Patch(offX.toInt, offY.toInt, w.toInt, h.toInt)
+  }
+  .flatMap(e => (0 until e.width).flatMap(x => (0 until e.height).map(y => (x + e.offX, y + e.offY))).toList).toList
+  .groupBy(identity).mapValues(_.size)
+  .filter {
+    case (k, v) => v >= 2
+  }
+  .size
 
 println(res)
