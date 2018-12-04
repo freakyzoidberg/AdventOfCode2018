@@ -1,10 +1,10 @@
 package com.zoidberg.day04
 
-import org.joda.time.DateTime
+import org.joda.time.{DateTime}
 
 import scala.io.Source
 
-object Part1 {
+object Part2 {
 
   sealed trait Log {
     val date: DateTime
@@ -67,16 +67,14 @@ object Part1 {
     val res = txt
       .shifts
       .toList
-      .map { v =>  (v._1, v._2.length, v._2.groupBy(identity).mapValues(_.length)) }
-      .foldLeft((0, 0, 0)) { (acc, v) =>
-        if (v._2 > acc._2) {
-          (v._1, v._2, v._3.maxBy(_._2)._1)
-        } else {
-          acc
-        }
+      .map { v =>  (v._1,  v._2.groupBy(identity).mapValues(_.length)) }
+      .filter(_._2.size > 0)
+      .map { v =>
+        val (minute:Int, duration:Int) = v._2.maxBy(_._2)
+        (v._1, minute, duration)
       }
 
-    println(res)
+    println(res.maxBy(_._3))
   }
 }
 
