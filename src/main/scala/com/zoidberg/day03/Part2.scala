@@ -1,0 +1,27 @@
+package com.zoidberg.day03
+
+import scala.io.Source
+
+object Part2 {
+  val pattern = "#(\\d+) @ (\\d+),(\\d+): (\\d+)+x(\\d+)".r
+
+  case class Patch(offX: Int, offY: Int, width: Int, height: Int, id: Int)
+
+  def main(args: Array[String]): Unit = {
+    val txt = Source.fromResource("day03/input.txt").getLines
+
+    val input = txt
+      .map {
+        case pattern(id, offX, offY, w, h) => Patch(offX.toInt, offY.toInt, w.toInt, h.toInt, id.toInt)
+      }.toList
+
+    val exclude = input
+      .flatMap(e => (0 until e.width).flatMap(x => (0 until e.height).map(y => (x + e.offX, y + e.offY, e.id))).toList)
+      .groupBy(k => (k._1, k._2)).mapValues(_.map(_._3))
+      .filter(_._2.length > 1)
+      .flatMap { case (k, v) => v }
+      .toSet
+
+    println(input.map(_.id).toSet.diff(exclude).toSeq.head)
+  }
+}
